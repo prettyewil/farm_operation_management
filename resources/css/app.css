@@ -85,10 +85,13 @@ body {
 
 /* Pulse Animation for Notifications */
 @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
     }
+
     50% {
         opacity: 0.8;
         box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
@@ -104,6 +107,7 @@ body {
     0% {
         background-position: -1000px 0;
     }
+
     100% {
         background-position: 1000px 0;
     }
@@ -111,13 +115,11 @@ body {
 
 .shimmer {
     animation: shimmer 2s infinite linear;
-    background: linear-gradient(
-        to right,
-        #f0f0f0 0%,
-        #e0e0e0 20%,
-        #f0f0f0 40%,
-        #f0f0f0 100%
-    );
+    background: linear-gradient(to right,
+            #f0f0f0 0%,
+            #e0e0e0 20%,
+            #f0f0f0 40%,
+            #f0f0f0 100%);
     background-size: 1000px 100%;
 }
 

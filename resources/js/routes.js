@@ -521,10 +521,10 @@ export const setupRouterGuards = (router) => {
       if (to.path === '/') {
         if (authStore.isAuthenticated) {
           next('/dashboard');
-        } else {
-          next('/login');
+          return;
         }
-        return;
+        // If not authenticated, let them stay on '/' (the Landing page)
+        // No redirect here
       }
 
       // Check if route requires authentication

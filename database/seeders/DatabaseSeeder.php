@@ -342,16 +342,16 @@ class DatabaseSeeder extends Seeder
 // Expenses for non-rice crops removed
 
             // Create weather logs
-            $fields = [$field1, $field2, $field3];
+            $farms = [$farm1, $farm2];
             $conditions = ['clear', 'cloudy', 'rainy', 'clear', 'cloudy'];
 
-            foreach ($fields as $field) {
+            foreach ($farms as $farm) {
                 for ($i = 0; $i < 7; $i++) {
                     $recordedAt = now()->subDays($i)->setTime(8 + $i, 0, 0);
 
                     WeatherLog::updateOrCreate(
                         [
-                            'field_id' => $field->id,
+                            'farm_id' => $farm->id,
                             'recorded_at' => $recordedAt,
                         ],
                         [

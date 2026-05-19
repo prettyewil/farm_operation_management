@@ -608,7 +608,7 @@ class DataAnalysisController extends Controller
             $autoCancelled = \App\Models\RiceOrder::whereHas('riceProduct', fn($q) => $q->where('farmer_id', $user->id))
                 ->where('status', \App\Models\RiceOrder::STATUS_CANCELLED)
                 ->where('updated_at', '>=', now()->subWeek())
-                ->where('cancellation_reason', 'like', '%auto-cancelled%')
+                ->where('farmer_notes', 'like', '%auto-cancelled%')
                 ->count();
             if ($autoCancelled > 0) {
                 $tone = 'concern';
@@ -636,7 +636,7 @@ class DataAnalysisController extends Controller
                 ->count();
             if ($pendingOrdersCount > 0) {
                 $suggestions[] = [
-                    'icon' => '🛒',
+                    'icon' => 'ShoppingBagIcon',
                     'category' => 'Sales & Orders',
                     'message' => sprintf('You have %d pending sales order(s). Review and confirm them.', $pendingOrdersCount),
                     'priority' => 'high',
@@ -654,7 +654,7 @@ class DataAnalysisController extends Controller
                 ->count();
             if ($expiringPickups > 0) {
                 $suggestions[] = [
-                    'icon' => '⏳',
+                    'icon' => 'ClockIcon',
                     'category' => 'Sales & Orders',
                     'message' => sprintf('%d order(s) awaiting pickup will expire within 24 hours.', $expiringPickups),
                     'priority' => 'urgent',
@@ -672,7 +672,7 @@ class DataAnalysisController extends Controller
                 })->count();
             if ($readyForHarvest > 0) {
                 $suggestions[] = [
-                    'icon' => '🌾',
+                    'icon' => 'SparklesIcon',
                     'category' => 'Production',
                     'message' => sprintf('%d planting(s) have reached maturity/ripening. Schedule a harvest.', $readyForHarvest),
                     'priority' => 'high',
@@ -695,7 +695,7 @@ class DataAnalysisController extends Controller
 
                 if (in_array(strtolower($conditionCode), ['rainy', 'stormy', 'thunderstorm', 'rain'])) {
                     $suggestions[] = [
-                        'icon' => '🌧️',
+                        'icon' => 'CloudIcon',
                         'category' => 'Weather Alert',
                         'message' => 'Rain is in the forecast. Check drainage and delay sensitive activities.',
                         'priority' => 'high',
@@ -709,7 +709,7 @@ class DataAnalysisController extends Controller
         // Overdue tasks suggestion
         if (($tasks['overdue_tasks'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon' => '⚠️',
+                'icon' => 'ExclamationTriangleIcon',
                 'category' => 'Task Management',
                 'message' => sprintf('%d overdue tasks need immediate attention', $tasks['overdue_tasks']),
                 'priority' => 'high',
@@ -721,7 +721,7 @@ class DataAnalysisController extends Controller
         // Pest incidents suggestion
         if (($pests['active_incidents'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon' => '🐛',
+                'icon' => 'BugAntIcon',
                 'category' => 'Pest Control',
                 'message' => sprintf('%d active pest incidents require treatment', $pests['active_incidents']),
                 'priority' => 'high',
@@ -733,7 +733,7 @@ class DataAnalysisController extends Controller
         // Nursery suggestion
         if (($nursery['ready_for_transplant'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon' => '🌱',
+                'icon' => 'SparklesIcon',
                 'category' => 'Transplanting',
                 'message' => sprintf('%d seedling batches are ready for transplanting', $nursery['ready_for_transplant']),
                 'priority' => 'medium',
@@ -747,7 +747,7 @@ class DataAnalysisController extends Controller
         $expenseTotal = $expenses['total_expenses'] ?? 0;
         if ($expenseTotal > $revenue && $revenue > 0) {
             $suggestions[] = [
-                'icon' => '💰',
+                'icon' => 'CurrencyDollarIcon',
                 'category' => 'Financial Review',
                 'message' => 'Expenses exceed revenue. Review expense categories for optimization.',
                 'priority' => 'medium',
@@ -759,7 +759,7 @@ class DataAnalysisController extends Controller
         // Failed planting suggestion
         if ($failureData && ($failureData['total_failed'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon'         => '💀',
+                'icon'         => 'XCircleIcon',
                 'category'     => 'Crop Failure',
                 'message'      => sprintf(
                     '%d planting(s) failed this season. Total crop loss: ₱%s. Review causes to prevent recurrence.',
@@ -775,7 +775,7 @@ class DataAnalysisController extends Controller
         // Low stock suggestion
         if ($inventory && ($inventory['low_stock_count'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon' => '📦',
+                'icon' => 'CubeIcon',
                 'category' => 'Inventory',
                 'message' => sprintf('%d item(s) below minimum stock level — restock needed', $inventory['low_stock_count']),
                 'priority' => 'high',
@@ -787,7 +787,7 @@ class DataAnalysisController extends Controller
         // Expiring items suggestion
         if ($inventory && ($inventory['expiring_soon_count'] ?? 0) > 0) {
             $suggestions[] = [
-                'icon' => '⏰',
+                'icon' => 'ClockIcon',
                 'category' => 'Inventory',
                 'message' => sprintf('%d item(s) expiring within 30 days — use or dispose', $inventory['expiring_soon_count']),
                 'priority' => 'high',
@@ -799,7 +799,7 @@ class DataAnalysisController extends Controller
         // Pending tasks suggestion
         if (($tasks['pending_tasks'] ?? 0) > 5) {
             $suggestions[] = [
-                'icon' => '📋',
+                'icon' => 'ClipboardDocumentListIcon',
                 'category' => 'Planning',
                 'message' => sprintf('%d pending tasks. Consider prioritizing or delegating.', $tasks['pending_tasks']),
                 'priority' => 'low',
@@ -811,7 +811,7 @@ class DataAnalysisController extends Controller
         // Fallback suggestions if no issues exist
         if (empty($suggestions)) {
             $suggestions[] = [
-                'icon' => '📊',
+                'icon' => 'ChartBarIcon',
                 'category' => 'Analytics',
                 'message' => 'Review your farm performance and identify optimization opportunities.',
                 'priority' => 'low',
@@ -819,7 +819,7 @@ class DataAnalysisController extends Controller
                 'action_url' => '/reports/profit-loss',
             ];
             $suggestions[] = [
-                'icon' => '🌾',
+                'icon' => 'SparklesIcon',
                 'category' => 'Planning',
                 'message' => 'Plan your next planting cycle for optimal yields.',
                 'priority' => 'low',
@@ -827,7 +827,7 @@ class DataAnalysisController extends Controller
                 'action_url' => '/plantings',
             ];
             $suggestions[] = [
-                'icon' => '📈',
+                'icon' => 'ArrowTrendingUpIcon',
                 'category' => 'Marketplace',
                 'message' => 'Manage your product listings and check orders.',
                 'priority' => 'low',

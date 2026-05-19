@@ -36,25 +36,13 @@
       <h1 class="text-3xl font-bold text-gray-800">ANIBUKID Dashboard</h1>
       <p class="text-gray-500 mt-1">Welcome back, <span class="font-semibold text-gray-800">{{ authStore.user?.name }}</span></p>
     </div>
-
-    <!-- Weather Widget (Moved to Header) -->
-    <div class="w-full md:w-auto min-w-[300px]">
-       <!-- Weather Card -->
-       <div v-if="currentFarmId">
-         <CurrentWeather :farm-id="currentFarmId" :compact="true" />
-       </div>
-       <div v-else class="p-4 bg-white rounded-lg shadow border border-gray-100 text-center">
-         <p class="text-xs text-gray-500">Weather data unavailable</p>
-         <button @click="navigateTo('/profile')" class="text-xs text-green-600 font-medium mt-1">Check Farm Profile</button>
-       </div>
-    </div>
   </div>
 
   <!-- Loading State -->
   <div v-if="isInitialLoading" class="py-8">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-      <p class="mt-4 text-gray-600">Loading dashboard...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600 font-semibold">Loading dashboard...</p>
     </div>
   </div>
 
@@ -269,6 +257,10 @@
   <!-- Main Dashboard Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
     <!-- Weather Widget -->
+    <div class="lg:col-span-2">
+      <CurrentWeather v-if="currentFarmId" :farm-id="currentFarmId" />
+    </div>
+    
     <!-- Quick Actions (Moved to Sidebar) -->
     <div class="lg:col-span-1 flex flex-col space-y-4">
         <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
@@ -374,45 +366,6 @@
               </div>
               <div v-if="lowStockItems.length > 3" class="text-center pt-1">
                  <span class="text-xs text-amber-700 font-medium">+ {{ lowStockItems.length - 3 }} more items</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Weather Farming Alerts -->
-          <div v-if="weatherAlerts.length > 0" class="bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 rounded-lg shadow-sm p-4 animate-fade-in-down">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-md font-bold text-blue-800 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                </svg>
-                Weather Farming Suggestions
-              </h3>
-              <button
-                @click="navigateTo('/weather')"
-                class="text-xs font-semibold text-blue-700 hover:text-blue-900 underline"
-              >
-                View Forecast
-              </button>
-            </div>
-            <div class="space-y-2">
-              <div
-                v-for="(alert, index) in weatherAlerts.slice(0, 3)"
-                :key="index"
-                :class="[
-                  'flex items-start p-3 rounded-md border',
-                  alert.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                  alert.type === 'danger' ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-100'
-                ]"
-              >
-                <div class="flex-shrink-0 mr-3">
-                  <span class="text-xl">{{ alert.icon }}</span>
-                </div>
-                <div class="flex-1">
-                  <p class="text-sm font-medium" :class="alert.type === 'danger' ? 'text-red-800' : alert.type === 'warning' ? 'text-yellow-800' : 'text-blue-800'">
-                    {{ alert.title }}
-                  </p>
-                  <p class="text-xs text-gray-600 mt-0.5">{{ alert.message }}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -726,95 +679,6 @@
     } catch (error) {
       console.warn('Error calculating ready for transplant:', error);
       return 0;
-    }
-  });
-
-  // Weather-based farming alerts and suggestions
-  const weatherAlerts = computed(() => {
-    try {
-      const alerts = [];
-      // Weather store now manages current weather based on farm ID
-      const weather = weatherStore.currentWeather;
-      const forecast = weatherStore.forecast || [];
-
-      if (!weather) return alerts;
-
-      const temp = weather.temperature || weather.temp;
-      const humidity = weather.humidity;
-      // Backend returns 'conditions' for current weather
-      const description = (weather.conditions || weather.description || weather.weather || '').toLowerCase();
-      const windSpeed = weather.wind_speed || weather.windSpeed || 0;
-
-      // Heavy rain warning
-      if (description.includes('rain') || description.includes('storm') || description.includes('shower')) {
-        alerts.push({
-          type: 'warning',
-          icon: '🌧️',
-          title: 'Rain Expected Today',
-          message: 'Delay pesticide application and fertilizer spreading. Check drainage systems.'
-        });
-      }
-
-      // Extreme heat warning
-      if (temp && temp > 35) {
-        alerts.push({
-          type: 'danger',
-          icon: '🌡️',
-          title: 'Extreme Heat Alert',
-          message: 'Water crops early morning or evening. Avoid planting during peak heat hours.'
-        });
-      }
-
-      // Good planting conditions
-      if (temp >= 25 && temp <= 32 && humidity >= 60 && humidity <= 85 && !description.includes('rain')) {
-        alerts.push({
-          type: 'info',
-          icon: '🌱',
-          title: 'Ideal Planting Conditions',
-          message: 'Temperature and humidity are optimal for transplanting rice seedlings.'
-        });
-      }
-
-      // High winds
-      if (windSpeed > 20) {
-        alerts.push({
-          type: 'warning',
-          icon: '💨',
-          title: 'High Wind Advisory',
-          message: 'Delay spraying activities. Check plant supports and field structures.'
-        });
-      }
-
-      // Drought conditions
-      if (temp > 30 && humidity < 40) {
-        alerts.push({
-          type: 'warning',
-          icon: '☀️',
-          title: 'Dry Conditions',
-          message: 'Increase irrigation frequency. Monitor soil moisture levels closely.'
-        });
-      }
-
-      // Check forecast for upcoming rain
-      // Backend forecast items have 'most_common_condition'
-      const upcomingRain = Array.isArray(forecast) && forecast.slice(0, 3).find(f => {
-        const desc = (f.most_common_condition || f.condition || f.description || f.weather || '').toLowerCase();
-        return desc.includes('rain') || desc.includes('storm');
-      });
-
-      if (upcomingRain && !description.includes('rain')) {
-        alerts.push({
-          type: 'info',
-          icon: '📅',
-          title: 'Rain Expected Soon',
-          message: 'Complete urgent field work today. Harvesting should be prioritized if crops are ready.'
-        });
-      }
-
-      return alerts;
-    } catch (error) {
-      console.warn('Error generating weather alerts:', error);
-      return [];
     }
   });
 

@@ -5,15 +5,15 @@
       <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
           <div class="flex items-center gap-3">
-            <h1 class="text-3xl font-bold text-gray-800">Farm Reports & Analytics</h1>
+            <h1 class="text-3xl font-bold text-gray-800 font-display">Farm Reports</h1>
           </div>
-          <p class="text-gray-500 mt-1">Analyze your rice farming performance and financial data</p>
+          <p class="text-gray-500 mt-1">Export and print detailed yield sheets and financial statements</p>
         </div>
         
         <div class="flex items-center space-x-3">
           <select 
             v-model="selectedPeriod"
-            class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-green-500 focus:border-green-500 bg-white shadow-sm"
+            class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-sm font-medium"
           >
             <option value="30">Last 30 Days</option>
             <option value="90">Last 3 Months</option>
@@ -24,7 +24,7 @@
             <button 
               @click="showExportMenu = !showExportMenu"
               :disabled="loading || !!loadError"
-              class="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -39,9 +39,9 @@
               v-if="showExportMenu"
               class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-100"
             >
-              <button @click="handleExport('pdf')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-600">Export as PDF</button>
-              <button @click="handleExport('csv')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-600">Export as CSV</button>
-              <button @click="handleExport('json')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-600">Export as JSON</button>
+              <button @click="handleExport('pdf')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-emerald-600">Export as PDF</button>
+              <button @click="handleExport('csv')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-emerald-600">Export as CSV</button>
+              <button @click="handleExport('json')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-emerald-600">Export as JSON</button>
             </div>
             
             <div v-if="showExportMenu" @click="showExportMenu = false" class="fixed inset-0 z-40"></div>
@@ -67,9 +67,9 @@
 
         <div v-else-if="loading" class="flex flex-col items-center justify-center py-32">
           <div class="relative">
-            <div class="h-16 w-16 rounded-full border-4 border-gray-200 border-t-green-600 animate-spin"></div>
+            <div class="h-16 w-16 rounded-full border-4 border-gray-200 border-t-emerald-600 animate-spin"></div>
             <div class="absolute inset-0 flex items-center justify-center">
-              <div class="h-8 w-8 bg-green-50 rounded-full animate-ping"></div>
+              <div class="h-8 w-8 bg-emerald-50 rounded-full animate-ping"></div>
             </div>
           </div>
           <p class="mt-6 text-gray-500 font-medium tracking-widest uppercase text-sm">Synchronizing Farm Data...</p>
@@ -84,7 +84,7 @@
               :class="[
                 'px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200',
                 activeTab === tab.id 
-                  ? 'bg-green-600 text-white shadow-md' 
+                  ? 'bg-emerald-600 text-white shadow-md' 
                   : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
               ]"
             >
@@ -96,44 +96,85 @@
             <div :key="activeTab">
               <div v-if="activeTab === 'yield'" class="space-y-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <StatCard title="Total Yield" :value="totalYield + ' ' + predominantUnit" sub="Accumulated harvest" icon-bg="bg-green-100" icon-text="text-green-600">
+                  <StatCard title="Total Yield" :value="totalYield + ' ' + predominantUnit" sub="Accumulated harvest" icon-bg="bg-emerald-50" icon-text="text-emerald-600">
                     <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </StatCard>
                   
-                  <StatCard title="Avg Yield/ha" :value="averageYieldPerHectare + ' ' + predominantUnit" sub="Efficiency metric" icon-bg="bg-blue-100" icon-text="text-blue-600">
+                  <StatCard title="Avg Yield/ha" :value="averageYieldPerHectare + ' ' + predominantUnit" sub="Efficiency metric" icon-bg="bg-blue-50" icon-text="text-blue-600">
                     <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </StatCard>
 
-                  <StatCard title="Best Variety" :value="bestVariety" sub="Top performing crop" icon-bg="bg-amber-100" icon-text="text-amber-600">
+                  <StatCard title="Best Variety" :value="bestVariety" sub="Top performing crop" icon-bg="bg-amber-50" icon-text="text-amber-600">
                     <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </StatCard>
 
-                  <StatCard title="Total Harvests" :value="totalHarvests" sub="Active field cycles" icon-bg="bg-purple-100" icon-text="text-purple-600">
+                  <StatCard title="Total Harvests" :value="totalHarvests" sub="Active field cycles" icon-bg="bg-purple-50" icon-text="text-purple-600">
                     <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </StatCard>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-center mb-6">
-                      <h3 class="text-lg font-bold text-gray-800">Yield Over Time</h3>
-                      <span class="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-500 rounded">Timeline</span>
+                <!-- Harvest Records Log Table -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                  <div class="flex justify-between items-center mb-6">
+                    <div>
+                      <h3 class="text-lg font-bold text-gray-800">Harvest Records Log</h3>
+                      <p class="text-sm text-gray-500 mt-1">Detailed list of crop harvests within the selected period</p>
                     </div>
-                    <div class="h-72">
-                      <LineChart v-if="yieldChartData.labels.length > 0" :data="yieldChartData" :options="chartOptions" />
-                      <NoData v-else />
-                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">
+                      {{ harvests.length }} entries
+                    </span>
                   </div>
-
-                  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-center mb-6">
-                      <h3 class="text-lg font-bold text-gray-800">Variety Distribution</h3>
-                      <span class="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-500 rounded">Categories</span>
-                    </div>
-                    <div class="h-72">
-                      <BarChart v-if="varietyChartData.labels.length > 0" :data="varietyChartData" :options="chartOptions" />
-                      <NoData v-else />
-                    </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-150">
+                      <thead>
+                        <tr class="bg-gray-50 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          <th class="px-6 py-4 rounded-l-lg">Date</th>
+                          <th class="px-6 py-4">Field Name</th>
+                          <th class="px-6 py-4">Crop / Variety</th>
+                          <th class="px-6 py-4">Yield Quantity</th>
+                          <th class="px-6 py-4 rounded-r-lg">Quality Grade</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-100 text-sm">
+                        <tr 
+                          v-for="h in harvests" 
+                          :key="h.id"
+                          class="hover:bg-gray-50/80 transition-colors"
+                        >
+                          <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">
+                            {{ formatLabelDate(h.harvest_date) }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                            {{ h.planting?.field?.name || 'Unknown Field' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-medium">
+                            {{ h.planting?.crop_type || 'Unknown Variety' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-emerald-600 font-semibold">
+                            {{ h.yield }} {{ h.unit || predominantUnit }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap">
+                            <span 
+                              :class="[
+                                'px-2.5 py-1 rounded-full text-xs font-bold uppercase border',
+                                h.quality === 'A' || h.quality?.toLowerCase()?.includes('premium') || h.quality?.toLowerCase()?.includes('excellent')
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                  : h.quality === 'B' || h.quality?.toLowerCase()?.includes('good')
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                    : 'bg-gray-50 text-gray-600 border-gray-200'
+                              ]"
+                            >
+                              {{ h.quality || 'N/A' }}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr v-if="!harvests.length">
+                          <td colspan="5" class="py-12">
+                            <NoData message="No harvest records found for the selected period." />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -146,46 +187,12 @@
                   <StatCard title="Profit Margin" :value="profitMargin + '%'" sub="Revenue efficiency" icon-bg="bg-indigo-50" icon-text="text-indigo-600" />
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6">Revenue vs Expenses Flow</h3>
-                    <div class="h-80">
-                      <LineChart v-if="financialChartData.labels.length > 0" :data="financialChartData" :options="chartOptions" />
-                      <NoData v-else />
-                    </div>
-                  </div>
-
-                  <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6">Expense Breakdown</h3>
-                    <div class="h-80 flex flex-col items-center">
-                      <PieChart v-if="expenseChartData.labels.length > 0" :data="expenseChartData" :options="pieChartOptions" />
-                      <NoData v-else />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-gray-200 p-8">
+                <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
                   <h3 class="text-xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-                    <div class="w-1.5 h-6 bg-green-500 rounded-full"></div>
+                    <div class="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
                     Detailed Profit & Loss Analysis
                   </h3>
                   <ProfitLossDetails :period="selectedPeriod" />
-                </div>
-              </div>
-
-              <div v-if="activeTab === 'weather'" class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <StatCard title="Avg Rainfall" :value="averageRainfall + ' mm'" sub="Precipitation" icon-bg="bg-cyan-50" icon-text="text-cyan-600" />
-                  <StatCard title="Avg Temperature" :value="averageTemperature + ' °C'" sub="Field climate" icon-bg="bg-orange-50" icon-text="text-orange-600" />
-                  <StatCard title="Climate Impact" :value="weatherImpact + '%'" sub="Favorable days" icon-bg="bg-green-50" icon-text="text-green-600" />
-                </div>
-
-                <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                  <h3 class="text-lg font-bold text-gray-800 mb-6">Yield & Rainfall Correlation</h3>
-                  <div class="h-96">
-                    <LineChart v-if="weatherCorrelationData.labels.length > 0" :data="weatherCorrelationData" :options="weatherChartOptions" />
-                    <NoData v-else />
-                  </div>
                 </div>
               </div>
             </div>
@@ -200,9 +207,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useFarmStore } from '@/stores/farm';
 import { useWeatherStore } from '@/stores/weather';
 import { useMarketplaceStore } from '@/stores/marketplace';
-import LineChart from '@/Components/Charts/LineChart.vue';
-import BarChart from '@/Components/Charts/BarChart.vue';
-import PieChart from '@/Components/Charts/PieChart.vue';
 import ProfitLossDetails from '@/Components/Reports/ProfitLossDetails.vue';
 
 import { formatCurrency } from '@/utils/format';
@@ -225,8 +229,7 @@ const loadError = ref('');
 
 const tabs = [
   { id: 'yield', name: 'Yield Report' },
-  { id: 'financial', name: 'Financial Report' },
-  { id: 'weather', name: 'Weather Correlation' }
+  { id: 'financial', name: 'Financial Report' }
 ];
 
 const chartColors = [

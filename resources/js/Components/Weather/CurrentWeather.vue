@@ -1,72 +1,92 @@
 <template>
-  <!-- Compact Mode -->
-  <div v-if="compact" class="bg-white rounded-lg shadow px-4 py-3">
+  <!-- Compact Mode (Soft Highlighted Design) -->
+  <div v-if="compact" class="bg-gradient-to-br from-emerald-50/70 to-white rounded-xl shadow-md border border-emerald-500/35 px-4 py-3.5 transition-all hover:shadow-lg hover:border-emerald-500/50 relative overflow-hidden">
+     <!-- Top brand glow bar -->
+     <div class="absolute top-0 left-0 w-full h-[3px] bg-emerald-600"></div>
+
      <!-- Loading -->
      <div v-if="loading && !weather" class="flex items-center justify-center w-full py-2">
-       <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+       <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-600"></div>
      </div>
+
      <!-- Weather Data -->
      <template v-else-if="weather">
-       <div class="flex items-center justify-between">
-         <div class="flex items-center space-x-3">
-           <span class="text-2xl">{{ getWeatherIcon(weather.conditions) }}</span>
-           <div>
-             <span class="text-xl font-bold text-gray-900">{{ Math.round(weather.temperature) }}°C</span>
-             <span class="text-sm text-gray-500 ml-2 capitalize">{{ weather.conditions }}</span>
-           </div>
-         </div>
-         <div class="flex items-center space-x-4 text-xs text-gray-500">
-           <div class="flex items-center" title="Humidity">
-             <span class="text-blue-500 mr-1">💧</span>{{ weather.humidity }}%
-           </div>
-           <div class="flex items-center" title="Wind">
-             <span class="mr-1">💨</span>{{ weather.wind_speed }} km/h
-           </div>
-         </div>
-       </div>
-       <!-- Alert Banner (if any) -->
-       <div v-if="alerts.length > 0" class="mt-2 flex flex-wrap gap-1">
-         <span 
-           v-for="(alert, index) in alerts.slice(0, 2)" 
-           :key="index"
-           :class="[
-             'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-             alert.severity === 'high' || alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
-             alert.severity === 'medium' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'
-           ]"
-         >
-           {{ getAlertIcon(alert.type) }} {{ alert.title || alert.message }}
-         </span>
-         <span v-if="alerts.length > 2" class="text-xs text-gray-500">+{{ alerts.length - 2 }} more</span>
-       </div>
-       <!-- Farming Advice (always shown) -->
-       <div class="mt-2 text-xs" :class="isFavorableForFarming ? 'text-green-600' : 'text-orange-600'">
-         💡 {{ getFarmingAdvice() }}
-       </div>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center space-x-2.5">
+            <!-- Dynamic Inline Weather Conditions SVGs -->
+            <div class="p-1.5 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+              <svg v-if="weather.conditions === 'clear'" class="w-6 h-6 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <svg v-else-if="weather.conditions === 'cloudy'" class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
+              <svg v-else-if="weather.conditions === 'rainy'" class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+              </svg>
+              <svg v-else class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+            </div>
+            <div>
+              <span class="text-xl font-extrabold text-gray-900">{{ Math.round(weather.temperature) }}°C</span>
+              <span class="text-xs font-bold text-gray-500 ml-2 capitalize tracking-wide">{{ weather.conditions }}</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3.5 text-xs text-gray-500 font-bold">
+            <!-- Humidity -->
+            <div class="flex items-center" title="Humidity">
+              <svg class="w-3.5 h-3.5 text-emerald-500 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              </svg>
+              {{ weather.humidity }}%
+            </div>
+            <!-- Wind -->
+            <div class="flex items-center" title="Wind Speed">
+              <svg class="w-3.5 h-3.5 text-emerald-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 10H4m12-4H4m16 8H4" />
+              </svg>
+              {{ weather.wind_speed }} km/h
+            </div>
+          </div>
+        </div>
+
+        <!-- Farming Advice -->
+        <div class="mt-2.5 p-2 bg-emerald-50 rounded border border-emerald-100 flex items-start gap-1.5 text-xs">
+          <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <div :class="isFavorableForFarming ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'">
+            {{ getFarmingAdvice() }}
+          </div>
+        </div>
      </template>
-     <!-- No Data/Error -->
+     <!-- No Data -->
      <div v-else class="text-xs text-gray-500 text-center w-full py-2">
-       No weather data
+       No weather records available
      </div>
   </div>
 
-  <!-- Full Mode (Original) -->
-  <div v-else class="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full">
-    <div class="flex items-center justify-between mb-4">
+  <!-- Full Mode (Stretches full width, highly detailed, beautifully highlighted) -->
+  <div v-else class="bg-gradient-to-br from-emerald-50/20 to-white rounded-xl shadow-md border border-emerald-500/35 p-6 flex flex-col relative overflow-hidden">
+     <!-- Top brand glow bar -->
+     <div class="absolute top-0 left-0 w-full h-[4px] bg-emerald-600"></div>
+
+     <div class="flex items-center justify-between mb-6">
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">Current Weather</h3>
-        <p v-if="weather && isDataStale" class="text-xs text-orange-600 mt-1">
-          ⚠️ Data may be outdated
+        <h3 class="text-lg font-bold text-gray-900">Today's Detailed Field Weather</h3>
+        <p v-if="weather && isDataStale" class="text-xs text-rose-600 mt-1 font-bold">
+          Updates delayed. Displayed data might be stale.
         </p>
       </div>
       <div class="flex items-center space-x-2">
-        <span v-if="autoRefreshActive" class="text-xs text-gray-400">
-          Auto-refresh: {{ timeUntilRefresh }}
+        <span v-if="autoRefreshActive" class="text-xs text-gray-400 font-bold">
+          Refresh in: {{ timeUntilRefresh }}
         </span>
         <button
           @click="refreshWeather"
           :disabled="loading"
-          class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+          class="p-2 text-gray-400 hover:text-emerald-600 transition-colors"
           :title="loading ? 'Refreshing...' : 'Refresh weather data'"
         >
           <svg 
@@ -83,137 +103,76 @@
 
     <!-- Loading State -->
     <div v-if="loading && !weather" class="flex items-center justify-center py-8 flex-1">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-[3px] border-emerald-100 border-t-emerald-600 mx-auto"></div>
     </div>
 
     <!-- Weather Data -->
     <div v-else-if="weather" class="flex-1 flex flex-col">
-      <div class="space-y-4">
-        <!-- Main Weather Info -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="text-4xl">
-              {{ getWeatherIcon(weather.conditions) }}
-            </div>
-            <div>
-              <div class="text-3xl font-bold text-gray-900">
-                {{ Math.round(weather.temperature) }}°C
-              </div>
-              <div class="text-sm text-gray-600 capitalize">
-                {{ weather.conditions }}
-              </div>
-            </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <!-- Main Temperature / Condition -->
+        <div class="flex items-center space-x-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/50 col-span-1">
+          <div class="p-3 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+            <svg v-if="weather.conditions === 'clear'" class="w-10 h-10 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+            </svg>
+            <svg v-else-if="weather.conditions === 'cloudy'" class="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+            <svg v-else-if="weather.conditions === 'rainy'" class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            </svg>
+            <svg v-else class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+            </svg>
           </div>
-          <div class="text-right">
-            <div class="text-sm text-gray-500">Last updated</div>
-            <div class="text-xs text-gray-400">
-              {{ formatTime(weather.recorded_at) }}
+          <div>
+            <div class="text-4xl font-black text-gray-900 tracking-tight">
+              {{ Math.round(weather.temperature) }}°C
+            </div>
+            <div class="text-sm font-bold text-gray-500 capitalize tracking-wide mt-0.5">
+              {{ weather.conditions }} Conditions
             </div>
           </div>
         </div>
 
-        <!-- Weather Metrics -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="text-center">
-            <div class="text-2xl font-semibold text-blue-600">
+        <!-- Weather Metrics Grid -->
+        <div class="grid grid-cols-3 gap-4 col-span-1 lg:col-span-2 items-center">
+          <div class="text-center p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="text-2xl font-black text-emerald-600">
               {{ weather.humidity }}%
             </div>
-            <div class="text-xs text-gray-500">Humidity</div>
+            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Humidity</div>
           </div>
-          <div class="text-center">
-            <div class="text-2xl font-semibold text-gray-600">
+          <div class="text-center p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="text-2xl font-black text-gray-800">
               {{ weather.wind_speed }} km/h
             </div>
-            <div class="text-xs text-gray-500">Wind Speed</div>
+            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Wind Speed</div>
           </div>
-          <div class="text-center">
-            <div class="text-2xl font-semibold text-orange-600">
+          <div class="text-center p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="text-2xl font-black text-amber-500">
               {{ Math.round(weather.temperature * 9/5 + 32) }}°F
             </div>
-            <div class="text-xs text-gray-500">Temperature</div>
+            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Fahrenheit</div>
           </div>
         </div>
       </div>
 
-      <!-- Weather Alerts -->
-      <div v-if="alerts.length > 0" class="space-y-2 flex-1 mt-4">
-        <h4 class="text-sm font-medium text-gray-900">Weather Alerts</h4>
-        <div 
-          v-for="alert in alerts" 
-          :key="alert.id"
-          :class="[
-            'p-3 rounded-md border-l-4',
-            getAlertClass(alert.severity)
-          ]"
-        >
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              {{ getAlertIcon(alert.type) }}
-            </div>
-            <div class="ml-3">
-              <p class="text-sm font-medium">{{ alert.title || 'Weather Alert' }}</p>
-              <p class="text-xs">{{ alert.message }}</p>
-              <p 
-                v-if="alert.recommendation" 
-                class="text-xs text-gray-500 mt-1 italic"
-              >
-                {{ alert.recommendation }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Farming Conditions -->
-      <div class="bg-gray-50 rounded-lg p-4 mt-auto">
-        <h4 class="text-sm font-medium text-gray-900 mb-2">Farming Conditions</h4>
-        <div class="flex items-center space-x-2">
-          <div 
-            :class="[
-              'w-3 h-3 rounded-full',
-              isFavorableForFarming ? 'bg-green-500' : 'bg-red-500'
-            ]"
-          ></div>
-          <span class="text-sm text-gray-700">
-            {{ isFavorableForFarming ? 'Favorable for rice farming' : 'Unfavorable conditions detected' }}
-          </span>
-        </div>
-        <div class="mt-2 text-xs text-gray-500">
-          {{ getFarmingAdvice() }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="text-center py-8 flex-1 flex flex-col justify-center">
-      <div class="text-red-500 mb-2">
-        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <!-- Farming Conditions Card -->
+      <div class="bg-emerald-50/50 rounded-xl p-4.5 mt-6 border border-emerald-100 flex items-start gap-3">
+        <svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
+        <div>
+          <h4 class="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <div :class="['w-2.5 h-2.5 rounded-full shrink-0', isFavorableForFarming ? 'bg-emerald-500' : 'bg-rose-500']"></div>
+            Agronomic Field Recommendation
+          </h4>
+          <p class="text-xs text-gray-700 font-bold leading-relaxed">
+            {{ getFarmingAdvice() }}
+          </p>
+        </div>
       </div>
-      <p class="text-sm text-gray-600">{{ error }}</p>
-      <button 
-        @click="refreshWeather"
-        class="mt-2 text-sm text-green-600 hover:text-green-700"
-      >
-        Try again
-      </button>
-    </div>
-
-    <!-- No Data State -->
-    <div v-else class="text-center py-8 flex-1 flex flex-col justify-center">
-      <div class="text-gray-400 mb-2">
-        <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-        </svg>
-      </div>
-      <p class="text-sm text-gray-600">No weather data available</p>
-      <button 
-        @click="refreshWeather"
-        class="mt-2 text-sm text-green-600 hover:text-green-700"
-      >
-        Load weather data
-      </button>
     </div>
   </div>
 </template>
@@ -240,22 +199,19 @@ const farmStore = useFarmStore();
 const loading = ref(false);
 const error = ref('');
 const autoRefreshInterval = ref(null);
-const refreshCountdown = ref(600); // 10 minutes in seconds
+const refreshCountdown = ref(600); // 10 minutes
 const autoRefreshActive = ref(true);
 
 const weather = computed(() => weatherStore.currentWeather);
 const alerts = computed(() => weatherStore.alerts || []);
 
-// Check if weather data is stale (older than 30 minutes)
 const isDataStale = computed(() => {
   if (!weather.value || !weather.value.recorded_at) return false;
   const recordedAt = new Date(weather.value.recorded_at);
   const now = new Date();
-  const minutesSinceUpdate = (now - recordedAt) / (1000 * 60);
-  return minutesSinceUpdate > 30;
+  return ((now - recordedAt) / (1000 * 60)) > 30;
 });
 
-// Format countdown timer
 const timeUntilRefresh = computed(() => {
   const minutes = Math.floor(refreshCountdown.value / 60);
   const seconds = refreshCountdown.value % 60;
@@ -264,11 +220,6 @@ const timeUntilRefresh = computed(() => {
 
 const isFavorableForFarming = computed(() => {
   if (!weather.value) return false;
-
-  if (typeof weather.value.is_favorable_for_farming === 'boolean') {
-    return weather.value.is_favorable_for_farming;
-  }
-  
   return weather.value.temperature >= 10 && 
          weather.value.temperature <= 35 &&
          weather.value.humidity >= 30 &&
@@ -281,119 +232,50 @@ const refreshWeather = async () => {
     error.value = 'No farm ID provided';
     return;
   }
-  
   loading.value = true;
   error.value = '';
-  
   try {
-    // Use Promise.allSettled to prevent one failure from breaking everything
     const results = await Promise.allSettled([
       weatherStore.fetchCurrentWeather(props.farmId),
       weatherStore.fetchWeatherAlerts(props.farmId)
     ]);
-    
-    // Check if any promises were rejected
     const failures = results.filter(result => result.status === 'rejected');
-    if (failures.length > 0) {
-      console.warn('Some weather data failed to load:', failures);
-      if (failures.length === results.length) {
-        const firstFailure = failures[0];
-        const errorMessage = firstFailure.reason?.response?.data?.message || 
-                            firstFailure.reason?.message || 
-                            'Failed to fetch weather data';
-        
-        // Check for API configuration errors
-        if (errorMessage.includes('401') || errorMessage.includes('Invalid API key')) {
-          error.value = 'OpenWeather API key is invalid. Please check your configuration.';
-        } else if (errorMessage.includes('429')) {
-          error.value = 'API rate limit exceeded. Please try again later.';
-        } else {
-          error.value = errorMessage;
-        }
-      }
+    if (failures.length === results.length) {
+      error.value = 'Failed to load fresh weather logs';
     } else {
-      // Reset countdown on successful refresh
       refreshCountdown.value = 600;
     }
   } catch (err) {
-    const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch weather data';
-    if (errorMessage.includes('401') || errorMessage.includes('Invalid API key')) {
-      error.value = 'OpenWeather API key is invalid. Please check your .env file.';
-    } else {
-      error.value = errorMessage;
-    }
+    error.value = err.message || 'Error compiling logs';
   } finally {
     loading.value = false;
   }
 };
 
-// Start auto-refresh countdown
 const startAutoRefresh = () => {
-  // Countdown timer
-  const countdownInterval = setInterval(() => {
+  autoRefreshInterval.value = setInterval(() => {
     if (refreshCountdown.value > 0) {
       refreshCountdown.value--;
     } else {
-      // Auto-refresh when countdown reaches 0
       refreshWeather();
-      refreshCountdown.value = 600; // Reset to 10 minutes
+      refreshCountdown.value = 600;
     }
   }, 1000);
-  
-  autoRefreshInterval.value = countdownInterval;
-};
-
-const getWeatherIcon = (conditions) => {
-  const icons = {
-    clear: '☀️',
-    cloudy: '☁️',
-    rainy: '🌧️',
-    stormy: '⛈️',
-    snowy: '❄️',
-    foggy: '🌫️'
-  };
-  return icons[conditions] || '🌤️';
-};
-
-const getAlertIcon = (type) => {
-  const icons = {
-    heavy_rain: '🌧️',
-    drought: '🌵',
-    typhoon: '🌀',
-    extreme_temperature: '🌡️',
-    high_humidity: '💧',
-    low_humidity: '💨',
-    wind: '🌬️',
-    conditions: '🌦️',
-    disease_risk: '🦠'
-  };
-  return icons[type] || '⚠️';
-};
-
-const getAlertClass = (severity) => {
-  const classes = {
-    low: 'bg-yellow-50 border-yellow-400 text-yellow-800',
-    medium: 'bg-orange-50 border-orange-400 text-orange-800',
-    high: 'bg-red-50 border-red-400 text-red-800',
-    critical: 'bg-red-100 border-red-600 text-red-900'
-  };
-  return classes[severity] || classes.medium;
 };
 
 const getFarmingAdvice = () => {
   if (!weather.value) return '';
-  
   const temp = weather.value.temperature;
   const humidity = weather.value.humidity;
   const wind = weather.value.wind_speed;
   
-  if (temp < 10) return 'Low temperature may affect rice growth. Consider protective measures.';
-  if (temp > 35) return 'High temperature stress. Ensure adequate irrigation.';
-  if (humidity < 30) return 'Low humidity increases water requirements.';
-  if (humidity > 80) return 'High humidity increases disease risk. Monitor for fungal infections.';
-  if (wind > 20) return 'Strong winds may damage crops. Check for lodging.';
+  if (temp < 10) return 'Low temperature may retard rice growth. Delay transplanting and monitor seedlings for cold injury.';
+  if (temp > 35) return 'High temperature stress. Boost water levels to 5-10cm to cool the soil and reduce spikelet sterility.';
+  if (humidity < 30) return 'Low humidity accelerates transpiration. Increase water irrigation frequency to prevent soil dryness.';
+  if (humidity > 80) return 'High humidity increases blast and sheath blight disease risks. Suspend pesticide spraying and monitor closely.';
+  if (wind > 20) return 'Strong winds may cause crop lodging. Ensure drainage channels are clear to prevent waterlogging.';
   
-  return 'Optimal conditions for rice farming activities.';
+  return 'Ideal mild conditions today. Excellent window for fertilizer/pesticide application, weeding, or field preparation.';
 };
 
 const formatTime = (timestamp) => {
@@ -411,3 +293,10 @@ onUnmounted(() => {
   }
 });
 </script>
+
+<style scoped>
+/* Standard tabular layouts */
+span, div {
+  font-feature-settings: "tnum";
+}
+</style>
