@@ -1,17 +1,44 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Standard Header -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-800">Plantings</h1>
-          <p class="text-gray-500 mt-1">Manage all your planting cycles, from seed to harvest.</p>
-        </div>
-        <div class="flex items-center gap-3">
+  <div class="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef7f2_38%,#f8fafc_100%)]">
+    <div class="w-full mx-auto px-6 py-8 space-y-6">
+      <section class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
+        <div class="grid grid-cols-1">
+          <div class="bg-[linear-gradient(135deg,#14532d_0%,#047857_52%,#0369a1_100%)] p-4 text-white">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-emerald-100">Production Cycle</p>
+            <h1 class="mt-2 text-3xl font-bold leading-tight">Plantings</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+              Monitor field cycles from planned planting through harvest, including failed-cycle review.
+            </p>
+          </div>
+          <div class="flex flex-col gap-4 bg-white p-5">
+            <div>
+              <p class="text-sm font-semibold text-gray-500">Cycle status</p>
+              <p class="mt-1 text-xl font-bold text-gray-900">{{ statusCounts.active }} active planting{{ statusCounts.active === 1 ? '' : 's' }}</p>
+              <p class="mt-1 text-sm leading-6 text-gray-500">{{ dueSoonCount }} due soon, {{ statusCounts.failed }} failed, {{ statusCounts.harvested }} harvested.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+              <div class="min-w-0 rounded-md bg-emerald-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-emerald-700">Active</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-emerald-950">{{ statusCounts.active }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-amber-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-amber-700">Due Soon</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-amber-950">{{ dueSoonCount }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-sky-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-sky-700">Harvested</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-sky-950">{{ statusCounts.harvested }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-rose-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-rose-700">Failed</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-rose-950">{{ statusCounts.failed }}</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
           <button
             @click="refreshPlantings"
             :disabled="loading"
-            class="flex items-center gap-2 bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium disabled:opacity-50"
+                class="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
           >
             <svg
               :class="['h-5 w-5', { 'animate-spin': loading }]"
@@ -25,60 +52,90 @@
           </button>
           <button
             @click="goToCreate"
-            class="flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
+                class="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
           >
             <span class="text-xl leading-none">+</span> New Planting
           </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       <!-- Filter Bar -->
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-center">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1.2fr_0.8fr_0.8fr_1.25fr_auto] xl:items-end">
         <!-- Field Filter -->
-        <select
-          v-model="filters.field"
-          class="flex-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white text-sm"
-        >
-          <option value="">All Fields</option>
-          <option v-for="field in fields" :key="field.id" :value="field.id">
-            {{ field.name }}
-          </option>
-        </select>
+          <div>
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Field</label>
+            <select
+              v-model="filters.field"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            >
+              <option value="">All Fields</option>
+              <option v-for="field in fields" :key="field.id" :value="field.id">
+                {{ field.name }}
+              </option>
+            </select>
+          </div>
 
         <!-- Status Filter -->
-        <select
-          v-model="filters.status"
-          class="w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white text-sm"
-        >
-          <option value="">Active Only</option>
-          <option value="all">All Statuses</option>
-          <option value="planned">Planned</option>
-          <option value="planted">Planted</option>
-          <option value="growing">Growing</option>
-          <option value="ready">Ready to Harvest</option>
-          <option value="harvested">Harvested</option>
-          <option value="failed">Failed</option>
-        </select>
+          <div>
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Status</label>
+            <select
+              v-model="filters.status"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            >
+              <option value="">Active Only</option>
+              <option value="all">All Statuses</option>
+              <option value="planned">Planned</option>
+              <option value="planted">Planted</option>
+              <option value="growing">Growing</option>
+              <option value="ready">Ready to Harvest</option>
+              <option value="harvested">Harvested</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
 
         <!-- Variety Filter -->
-        <select
-          v-model="filters.variety"
-          class="w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white text-sm"
-        >
-          <option :value="null">All Varieties</option>
-          <option v-for="option in varietyOptions" :key="option.key" :value="option">
-            {{ option.label }}
-          </option>
-        </select>
+          <div>
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Variety</label>
+            <select
+              v-model="filters.variety"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            >
+              <option :value="null">All Varieties</option>
+              <option v-for="option in varietyOptions" :key="option.key" :value="option">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Planted date</label>
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <input
+                v-model="dateFrom"
+                type="date"
+                class="min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+              <span class="text-xs font-semibold text-gray-400">to</span>
+              <input
+                v-model="dateTo"
+                type="date"
+                class="min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+            </div>
+          </div>
 
         <!-- Clear Filters -->
-        <button
-          v-if="filters.status || filters.field || filters.variety"
-          @click="clearFilters"
-          class="whitespace-nowrap text-sm text-gray-500 hover:text-red-600 transition-colors px-3 py-2 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50"
-        >
-          ✕ Clear
-        </button>
+          <button
+            v-if="hasActiveFilters"
+            @click="clearFilters"
+            class="w-full whitespace-nowrap rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 xl:w-auto"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       <!-- View Toggle (only when failed filter active or all statuses) -->
@@ -111,45 +168,6 @@
           </svg>
           Failure Table
         </button>
-      </div>
-
-      <!-- Badge counts + Date range row -->
-      <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center mb-6">
-        <!-- Status badge counts -->
-        <div class="flex flex-wrap gap-2 flex-1">
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-            🌱 {{ statusCounts.active }} active
-          </span>
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-            ✅ {{ statusCounts.harvested }} harvested
-          </span>
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-            ❌ {{ statusCounts.failed }} failed
-          </span>
-          <span v-if="dueSoonCount > 0" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 animate-pulse">
-            ⏰ {{ dueSoonCount }} due soon
-          </span>
-        </div>
-        <!-- Date range -->
-        <div class="flex items-center gap-2 text-sm">
-          <label class="text-gray-500 shrink-0">Planted:</label>
-          <input
-            v-model="dateFrom"
-            type="date"
-            class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
-          />
-          <span class="text-gray-400">–</span>
-          <input
-            v-model="dateTo"
-            type="date"
-            class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-green-500 outline-none"
-          />
-          <button
-            v-if="dateFrom || dateTo"
-            @click="dateFrom = ''; dateTo = ''"
-            class="text-xs text-gray-400 hover:text-red-500"
-          >✕</button>
-        </div>
       </div>
 
       <!-- Error -->
@@ -264,11 +282,11 @@
                     <div class="flex items-center justify-end gap-2">
                       <button
                         @click="goToDetails(planting.id)"
-                        class="text-xs font-medium text-green-700 hover:underline"
+                        class="break-words text-[11px] font-semibold leading-tight text-green-700 hover:underline"
                       >View</button>
                       <button
                         @click="confirmDelete(planting)"
-                        class="text-xs font-medium text-red-600 hover:underline"
+                        class="break-words text-[11px] font-semibold leading-tight text-red-600 hover:underline"
                       >Delete</button>
                     </div>
                   </td>
@@ -428,6 +446,14 @@ watch(() => filters.value.status, (newStatus) => {
 
 const dateFrom = ref('')
 const dateTo = ref('')
+
+const hasActiveFilters = computed(() => (
+  Boolean(filters.value.status)
+  || Boolean(filters.value.field)
+  || Boolean(filters.value.variety)
+  || Boolean(dateFrom.value)
+  || Boolean(dateTo.value)
+))
 
 // --- Badge counts (across ALL plantings, not filtered) ---
 const statusCounts = computed(() => ({

@@ -1,42 +1,47 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-800">Pest & Disease Tracker</h1>
-          <p class="text-gray-500 mt-1">Monitor and manage pest incidents across your fields.</p>
+  <div class="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#fff7ed_38%,#f8fafc_100%)]">
+    <div class="w-full mx-auto px-6 py-8 space-y-6">
+      <section class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
+        <div class="grid grid-cols-1">
+          <div class="bg-[linear-gradient(135deg,#7f1d1d_0%,#b45309_52%,#14532d_100%)] p-4 text-white">
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-100">Production Cycle</p>
+            <h1 class="mt-2 text-3xl font-bold leading-tight">Pest & Disease Tracker</h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+              Record field incidents, treatment actions, and risk trends before they affect production.
+            </p>
+          </div>
+          <div class="flex flex-col gap-4 bg-white p-5">
+            <div>
+              <p class="text-sm font-semibold text-gray-500">Protection status</p>
+              <p class="mt-1 text-xl font-bold text-gray-900">{{ stats.active }} active incident{{ stats.active === 1 ? '' : 's' }}</p>
+              <p class="mt-1 text-sm leading-6 text-gray-500">{{ stats.total }} total reports, {{ stats.treated }} treated, {{ stats.resolved }} resolved.</p>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="min-w-0 rounded-md bg-rose-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-rose-700">Active</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-rose-950">{{ stats.active }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-amber-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-amber-700">Treated</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-amber-950">{{ stats.treated }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-emerald-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-emerald-700">Resolved</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-emerald-950">{{ stats.resolved }}</p>
+              </div>
+            </div>
+            <button
+              @click="showCreateModal = true"
+              class="inline-flex w-fit items-center gap-1.5 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700"
+            >
+              <span class="text-lg leading-none">+</span> Report Incident
+            </button>
+          </div>
         </div>
-        <button
-          @click="showCreateModal = true"
-          class="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 transition-colors shadow-sm font-medium"
-        >
-          <span class="text-xl leading-none">+</span> Report Incident
-        </button>
-      </div>
-
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-xl shadow p-5">
-          <p class="text-sm text-gray-500">Total Incidents</p>
-          <p class="text-2xl font-bold text-gray-800">{{ stats.total }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-red-500">
-          <p class="text-sm text-gray-500">Active</p>
-          <p class="text-2xl font-bold text-red-600">{{ stats.active }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-yellow-500">
-          <p class="text-sm text-gray-500">Treated</p>
-          <p class="text-2xl font-bold text-yellow-600">{{ stats.treated }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500">
-          <p class="text-sm text-gray-500">Resolved</p>
-          <p class="text-2xl font-bold text-green-600">{{ stats.resolved }}</p>
-        </div>
-      </div>
+      </section>
 
       <!-- Analytics Section (Collapsible) -->
-      <div class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
         <button @click="showAnalytics = !showAnalytics" class="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors">
           <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
             <span class="text-xl">📊</span> Pest Analytics
@@ -140,7 +145,7 @@
 
               <!-- Treatment Costs -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Treatment Costs</p>
+                <p class="break-words text-[11px] font-semibold leading-tight text-gray-500 uppercase tracking-wide mb-2">Treatment Costs</p>
                 <p class="text-xl font-bold text-gray-900">₱{{ formatNumber(analyticsData.treatment_costs.total) }}</p>
                 <div class="mt-2 space-y-1 text-sm">
                   <div class="flex justify-between text-gray-600">
@@ -156,7 +161,7 @@
 
               <!-- Top Recurring Pests -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Top Pests</p>
+                <p class="break-words text-[11px] font-semibold leading-tight text-gray-500 uppercase tracking-wide mb-2">Top Pests</p>
                 <div v-if="analyticsData.top_pests?.length" class="space-y-2">
                   <div v-for="(pest, i) in analyticsData.top_pests" :key="i" class="flex items-center justify-between">
                     <span class="flex items-center gap-1.5 text-sm text-gray-700 truncate">
@@ -171,7 +176,7 @@
 
               <!-- Avg Resolution -->
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Avg. Resolution</p>
+                <p class="break-words text-[11px] font-semibold leading-tight text-gray-500 uppercase tracking-wide mb-2">Avg. Resolution</p>
                 <p class="text-xl font-bold text-gray-900">
                   {{ analyticsData.avg_resolution_days }}
                   <span class="text-sm font-normal text-gray-500">days</span>
@@ -194,7 +199,7 @@
       </div>
 
       <!-- Filters -->
-      <div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-wrap gap-4">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-6 flex flex-wrap gap-4">
         <select v-model="filter.status" @change="loadData" class="px-3 py-2 border rounded-lg">
           <option value="">All Status</option>
           <option value="active">Active</option>
@@ -306,7 +311,7 @@
                 </option>
               </select>
               
-              <div v-if="selectedPlanting" class="mt-2 p-3 bg-gray-50 rounded-lg text-sm border border-gray-100">
+              <div v-if="selectedPlanting" class="mt-2 p-2.5 bg-gray-50 rounded-lg text-sm border border-gray-100">
                 <p class="font-medium text-gray-700">Linked Crop:</p>
                 <div class="flex items-center gap-2 mt-1">
                    <span class="text-green-700 font-medium">{{ selectedPlanting.rice_variety?.name || selectedPlanting.crop_type }}</span>

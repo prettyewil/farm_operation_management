@@ -1,25 +1,54 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <h2 class="text-2xl font-bold tracking-tight text-gray-900">
-        Post-Harvest Processing
-        <span v-if="harvest" class="text-gray-500 text-lg ml-2 font-normal">
-          for {{ harvest.planting.rice_variety?.name || harvest.planting.crop_type }}
-        </span>
-      </h2>
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          v-if="harvest && pipelineStatus.is_complete"
-          @click="openMarketplaceCreate"
-          class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
-        >
-          Publish to Marketplace
-        </button>
-        <button @click="router.push('/harvests')" class="text-sm font-medium text-primary hover:text-primary-dark">
-          &larr; Back to Harvests
-        </button>
+  <div class="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#fff7ed_38%,#f8fafc_100%)]">
+  <div class="w-full mx-auto px-6 py-8 space-y-6">
+    <section class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
+      <div class="grid grid-cols-1">
+        <div class="bg-[linear-gradient(135deg,#78350f_0%,#047857_52%,#0f766e_100%)] p-4 text-white">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-amber-100">Production Cycle</p>
+          <h1 class="mt-2 text-3xl font-bold leading-tight">Post-Harvest Processing</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+            {{ harvest ? `Manage ${harvest.planting.rice_variety?.name || harvest.planting.crop_type} through threshing, drying, and milling.` : 'Manage processing steps after harvest before inventory and marketplace release.' }}
+          </p>
+        </div>
+        <div class="flex flex-col gap-4 bg-white p-5">
+          <div>
+            <p class="text-sm font-semibold text-gray-500">Pipeline status</p>
+            <p class="mt-1 text-xl font-bold text-gray-900">{{ pipelineStatus.is_complete ? 'Ready for marketplace' : pipelineStatus.next_step ? `Next: ${pipelineStatus.next_step}` : 'Processing review' }}</p>
+            <p class="mt-1 text-sm leading-6 text-gray-500">{{ processes.length }} process record{{ processes.length === 1 ? '' : 's' }} logged for this harvest.</p>
+          </div>
+          <div v-if="summary" class="grid grid-cols-2 gap-2 md:grid-cols-4">
+            <div class="min-w-0 rounded-md bg-sky-50 p-2.5">
+              <p class="break-words text-[11px] font-semibold leading-tight text-sky-700">Harvest</p>
+              <p class="mt-1 break-words text-base font-bold leading-tight text-sky-950">{{ summary.original_quantity }} {{ displayUnit(summary.original_unit) }}</p>
+            </div>
+            <div class="min-w-0 rounded-md bg-emerald-50 p-2.5">
+              <p class="break-words text-[11px] font-semibold leading-tight text-emerald-700">Output</p>
+              <p class="mt-1 break-words text-base font-bold leading-tight text-emerald-950">{{ summary.final_quantity }} {{ displayUnit(summary.final_unit) }}</p>
+            </div>
+            <div class="min-w-0 rounded-md bg-amber-50 p-2.5">
+              <p class="break-words text-[11px] font-semibold leading-tight text-amber-700">Recovery</p>
+              <p class="mt-1 break-words text-base font-bold leading-tight text-amber-950">{{ summary.overall_recovery_rate }}%</p>
+            </div>
+            <div class="min-w-0 rounded-md bg-rose-50 p-2.5">
+              <p class="break-words text-[11px] font-semibold leading-tight text-rose-700">Cost</p>
+              <p class="mt-1 break-words text-base font-bold leading-tight text-rose-950">₱{{ formatNumber(totalOperationalCost) }}</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-if="harvest && pipelineStatus.is_complete"
+              @click="openMarketplaceCreate"
+              class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+            >
+              Publish to Marketplace
+            </button>
+            <button @click="router.push('/harvests')" class="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+              Back to Harvests
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
     <div v-if="pipelineStatus.is_complete && summary?.final_quantity" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
       Current processed output is ready to carry into the marketplace whenever you want to publish it.
@@ -46,32 +75,8 @@
       </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div v-if="summary" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-        <h3 class="text-sm font-medium text-gray-500">Original Harvest</h3>
-        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ summary.original_quantity }} {{ displayUnit(summary.original_unit) }}</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-emerald-500">
-        <h3 class="text-sm font-medium text-gray-500">Current Output</h3>
-        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ summary.final_quantity }} {{ displayUnit(summary.final_unit) }}</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-amber-500">
-        <h3 class="text-sm font-medium text-gray-500">Overall Recovery</h3>
-        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ summary.overall_recovery_rate }}%</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-rose-500">
-        <h3 class="text-sm font-medium text-gray-500">Total Processing Cost</h3>
-        <p class="mt-1 text-2xl font-semibold text-gray-900">₱{{ formatNumber(summary.total_cost) }}</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border-l-4 border-violet-500">
-        <h3 class="text-sm font-medium text-gray-500">Processing + Labor Cost</h3>
-        <p class="mt-1 text-2xl font-semibold text-gray-900">₱{{ formatNumber(totalOperationalCost) }}</p>
-      </div>
-    </div>
-
     <!-- Fixed Pipeline Visualization -->
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-white border border-gray-200 shadow-sm rounded-xl p-6">
       <h3 class="text-lg font-medium text-gray-900 mb-4">Processing Pipeline</h3>
       
       <div class="relative overflow-x-auto pb-2">
@@ -134,7 +139,7 @@
     </div>
 
     <!-- History List -->
-    <div v-if="processes.length > 0" class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div v-if="processes.length > 0" class="bg-white border border-gray-200 shadow-sm overflow-hidden sm:rounded-xl">
       <div class="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Processing History</h3>
         <button
@@ -217,6 +222,7 @@
       @close="closeModal"
       @saved="fetchData"
     />
+  </div>
   </div>
 </template>
 

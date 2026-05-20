@@ -2,42 +2,40 @@
   <div class="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef7f2_36%,#f8fafc_100%)] text-gray-900">
     <div class="w-full px-6 py-8 space-y-7">
       <section class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
-        <div class="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr]">
-          <div class="relative bg-[linear-gradient(135deg,#0f172a_0%,#14532d_48%,#0369a1_100%)] p-8 text-white">
+        <div class="grid grid-cols-1">
+          <div class="relative bg-[linear-gradient(135deg,#0f172a_0%,#14532d_48%,#0369a1_100%)] p-4 text-white">
             <p class="text-xs font-bold uppercase tracking-[0.24em] text-emerald-200">Field operations</p>
-            <h1 class="mt-3 max-w-3xl text-4xl font-bold leading-tight">Rice Fields</h1>
-            <p class="mt-4 max-w-3xl text-sm leading-6 text-white/75">
+            <h1 class="mt-2 max-w-3xl text-3xl font-bold leading-tight">Rice Fields</h1>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-white/75">
               Monitor land use, active plantings, soil conditions, and field readiness from one focused workspace.
             </p>
-            <div class="mt-6 flex flex-wrap gap-2">
-              <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">Boundaries</span>
-              <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">Planting Status</span>
-              <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">Soil</span>
-              <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90">Irrigation</span>
-            </div>
           </div>
 
-          <div class="flex flex-col justify-between gap-6 bg-white p-8">
+          <div class="flex flex-col gap-4 bg-white p-5">
             <div>
               <p class="text-sm font-semibold text-gray-500">Farm profile</p>
-              <p class="mt-2 text-2xl font-bold text-gray-900">{{ farmName }}</p>
-              <p class="mt-2 text-sm leading-6 text-gray-500">
+              <p class="mt-1 text-xl font-bold text-gray-900">{{ farmName }}</p>
+              <p class="mt-1 text-sm leading-6 text-gray-500">
                 {{ activePlantingCount }} field{{ activePlantingCount === 1 ? '' : 's' }} currently planted across {{ formatAreaValue(totalFieldArea) }} hectares.
               </p>
             </div>
 
-            <div class="grid grid-cols-3 gap-3">
-              <div class="rounded-xl bg-emerald-50 p-3">
-                <p class="text-xs font-medium text-emerald-700">Fields</p>
-                <p class="mt-1 text-xl font-bold text-emerald-950">{{ fields.length }}</p>
+            <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+              <div class="min-w-0 rounded-md bg-emerald-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-emerald-700">Fields</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-emerald-950">{{ fields.length }}</p>
               </div>
-              <div class="rounded-xl bg-sky-50 p-3">
-                <p class="text-xs font-medium text-sky-700">Area</p>
-                <p class="mt-1 text-xl font-bold text-sky-950">{{ formatAreaValue(totalFieldArea) }} ha</p>
+              <div class="min-w-0 rounded-md bg-sky-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-sky-700">Area</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-sky-950">{{ formatAreaValue(totalFieldArea) }} ha</p>
               </div>
-              <div class="rounded-xl bg-amber-50 p-3">
-                <p class="text-xs font-medium text-amber-700">Fallow</p>
-                <p class="mt-1 text-xl font-bold text-amber-950">{{ fallowFieldCount }}</p>
+              <div class="min-w-0 rounded-md bg-amber-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-amber-700">Active</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-amber-950">{{ activePlantingCount }}</p>
+              </div>
+              <div class="min-w-0 rounded-md bg-violet-50 p-2.5">
+                <p class="break-words text-[11px] font-semibold leading-tight text-violet-700">Soil</p>
+                <p class="mt-1 break-words text-lg font-bold leading-tight text-violet-950">{{ primarySoilLabel }}</p>
               </div>
             </div>
 
@@ -88,13 +86,6 @@
         </div>
       </div>
 
-      <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryTile label="Total Field Area" :value="`${formatAreaValue(totalFieldArea)} ha`" :detail="`${fields.length} mapped fields`" tone="emerald" />
-        <SummaryTile label="Active Plantings" :value="activePlantingCount" :detail="`${activeAreaPercent}% of fields planted`" tone="blue" />
-        <SummaryTile label="Available Fields" :value="availableFieldCount" detail="No current crop" tone="amber" />
-        <SummaryTile label="Primary Soil" :value="primarySoilLabel" detail="Most common field soil" tone="violet" />
-      </section>
-
       <section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
         <div class="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_180px_180px_180px_auto]">
           <div class="relative">
@@ -136,7 +127,7 @@
         <div v-for="n in 6" :key="n" class="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <div class="h-5 w-1/3 rounded bg-gray-200"></div>
           <div class="mt-5 h-24 rounded-xl bg-gray-100"></div>
-          <div class="mt-5 grid grid-cols-3 gap-3">
+          <div class="mt-5 grid grid-cols-3 gap-2">
             <div class="h-16 rounded-xl bg-gray-100"></div>
             <div class="h-16 rounded-xl bg-gray-100"></div>
             <div class="h-16 rounded-xl bg-gray-100"></div>
@@ -195,7 +186,7 @@
           </div>
 
           <div class="p-6">
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-3 gap-2">
               <MiniStat label="Area" :value="formatArea(field.size || field.area || field.field_size)" tone="emerald" />
               <MiniStat label="Soil" :value="formatDisplayKey(field.soil_type) || 'Unset'" tone="amber" />
               <MiniStat label="Irrigation" :value="formatDisplayKey(field.irrigation_type) || 'Unset'" tone="blue" />
@@ -221,7 +212,7 @@
             </div>
 
             <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
-              <p class="text-xs font-medium text-gray-400">Updated {{ formatDate(field.updated_at || field.created_at) }}</p>
+              <p class="break-words text-[11px] font-semibold leading-tight text-gray-400">Updated {{ formatDate(field.updated_at || field.created_at) }}</p>
               <div class="flex items-center gap-2">
                 <button
                   v-if="field.id"
@@ -282,12 +273,7 @@ const totalFieldArea = computed(() => {
 })
 
 const activePlantingCount = computed(() => fields.value.filter(field => field.current_crop).length)
-const availableFieldCount = computed(() => fields.value.filter(field => !field.current_crop).length)
 const fallowFieldCount = computed(() => fields.value.filter(field => field.status === 'fallow' || !field.current_crop).length)
-const activeAreaPercent = computed(() => {
-  if (!fields.value.length) return 0
-  return Math.round((activePlantingCount.value / fields.value.length) * 100)
-})
 
 const primarySoilLabel = computed(() => {
   const counts = fields.value.reduce((acc, field) => {
@@ -439,38 +425,6 @@ const statusClass = (status) => {
   return classes[status] || 'bg-blue-100 text-blue-800'
 }
 
-const summaryToneClass = {
-  emerald: 'border-emerald-100 bg-emerald-50 text-emerald-950',
-  blue: 'border-sky-100 bg-sky-50 text-sky-950',
-  amber: 'border-amber-100 bg-amber-50 text-amber-950',
-  violet: 'border-violet-100 bg-violet-50 text-violet-950'
-}
-
-const summaryLabelClass = {
-  emerald: 'text-emerald-700',
-  blue: 'text-sky-700',
-  amber: 'text-amber-700',
-  violet: 'text-violet-700'
-}
-
-const SummaryTile = {
-  props: {
-    label: String,
-    value: [String, Number],
-    detail: String,
-    tone: { type: String, default: 'emerald' }
-  },
-  setup(props) {
-    return () => h('div', {
-      class: ['rounded-2xl border p-5 shadow-sm', summaryToneClass[props.tone] || summaryToneClass.emerald]
-    }, [
-      h('p', { class: ['text-xs font-bold uppercase tracking-wide', summaryLabelClass[props.tone] || summaryLabelClass.emerald] }, props.label),
-      h('p', { class: 'mt-2 text-3xl font-bold tracking-tight' }, props.value),
-      h('p', { class: 'mt-1 text-sm font-medium opacity-70' }, props.detail)
-    ])
-  }
-}
-
 const miniToneClass = {
   emerald: 'border-emerald-100 bg-emerald-50 text-emerald-950',
   amber: 'border-amber-100 bg-amber-50 text-amber-950',
@@ -485,7 +439,7 @@ const MiniStat = {
   },
   setup(props) {
     return () => h('div', {
-      class: ['min-w-0 rounded-xl border p-3', miniToneClass[props.tone] || miniToneClass.emerald]
+      class: ['min-w-0 rounded-xl border p-2.5', miniToneClass[props.tone] || miniToneClass.emerald]
     }, [
       h('p', { class: 'truncate text-xs font-bold uppercase tracking-wide opacity-70' }, props.label),
       h('p', { class: 'mt-1 truncate text-sm font-bold' }, props.value)

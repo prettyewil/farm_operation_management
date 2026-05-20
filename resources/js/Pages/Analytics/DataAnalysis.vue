@@ -134,29 +134,29 @@
                     Recommended Actions
                   </h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
                   <div
                     v-for="(suggestion, index) in analyticsData.action_suggestions"
                     :key="index"
                     @click="navigateTo(suggestion.action_url)"
-                    class="group bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer relative overflow-hidden"
+                    class="group bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer relative overflow-hidden min-h-[172px]"
                   >
                     <div :class="[
                       'absolute top-0 left-0 w-full h-1',
-                      suggestion.priority === 'high' ? 'bg-rose-500' :
+                      ['urgent', 'high'].includes(suggestion.priority) ? 'bg-rose-500' :
                       suggestion.priority === 'medium' ? 'bg-amber-500' :
                       'bg-emerald-400'
                     ]"></div>
 
                     <div class="flex flex-col h-full">
-                      <div class="flex justify-between items-start mb-3">
-                        <svg class="w-6 h-6 text-gray-700 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="flex justify-between items-start gap-3 mb-3">
+                        <svg class="w-6 h-6 shrink-0 text-gray-700 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="getSuggestionIcon(suggestion.icon)"></path>
                         </svg>
                         <span
                           :class="[
-                            'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full',
-                            suggestion.priority === 'high' ? 'bg-rose-50 text-rose-700' :
+                            'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap',
+                            ['urgent', 'high'].includes(suggestion.priority) ? 'bg-rose-50 text-rose-700' :
                             suggestion.priority === 'medium' ? 'bg-amber-50 text-amber-700' :
                             'bg-emerald-50 text-emerald-700'
                           ]"
@@ -165,12 +165,12 @@
                         </span>
                       </div>
 
-                      <h3 class="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">{{ suggestion.category }}</h3>
-                      <p class="text-sm text-gray-500 mb-4 line-clamp-2 flex-grow">{{ suggestion.message }}</p>
+                      <h3 class="text-sm font-semibold text-gray-900 mb-1 break-words">{{ suggestion.category }}</h3>
+                      <p class="text-sm text-gray-500 mb-4 leading-relaxed break-words flex-grow">{{ suggestion.message }}</p>
 
-                      <div class="flex items-center text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
-                        {{ suggestion.action_label }}
-                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                      <div class="flex items-center gap-1 text-xs font-medium text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                        <span class="break-words">{{ suggestion.action_label }}</span>
+                        <svg class="w-3 h-3 shrink-0 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                       </div>
                     </div>
                   </div>
@@ -589,7 +589,7 @@
               <!-- Weather Correlation Chart -->
               <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-center mb-6">
-                  <h3 class="text-lg font-bold text-gray-800">Yield & Rainfall Correlation</h3>
+                  <h3 class="text-lg font-bold text-gray-800">Monthly Yield & Rainfall Correlation</h3>
                   <span class="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-500 rounded">Climate Impact</span>
                 </div>
                 <div class="h-96">
@@ -749,6 +749,23 @@ const expensesList = computed(() => ensureArray(farmStore.expenses));
 const farmerOrders = computed(() => ensureArray(marketplaceStore.orders));
 const weatherHistoryRecords = computed(() => ensureArray(weatherStore.weatherHistory));
 
+const harvestUnit = computed(() => {
+  const unitCounts = harvests.value.reduce((acc, harvest) => {
+    const unit = harvest?.unit || 'bushels';
+    acc[unit] = (acc[unit] || 0) + 1;
+    return acc;
+  }, {});
+
+  const entries = Object.entries(unitCounts);
+  if (!entries.length) return 'bushels';
+
+  return entries.reduce((best, current) => (current[1] > best[1] ? current : best))[0];
+});
+
+const harvestAmount = (harvest) => {
+  return Number(harvest?.quantity ?? harvest?.yield ?? 0) || 0;
+};
+
 const netProfit = computed(() => {
   const revenue = analyticsData.value?.sales?.total_revenue ?? 0;
   const expenses = analyticsData.value?.expenses?.total_expenses ?? 0;
@@ -799,6 +816,11 @@ const monthLabelFromKey = (key) => {
   return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 };
 
+const selectedPeriodLabel = computed(() => {
+  if (selectedPeriod.value === 'all') return 'All Time';
+  return `${formatLabelDate(startDate.value)} - ${formatLabelDate(endDate.value)}`;
+});
+
 const aggregateByMonth = (records, dateKey, valueKey) => {
   const result = new Map();
   ensureArray(records).forEach((record) => {
@@ -822,12 +844,11 @@ const yieldChartData = computed(() => {
 
   if (!ordered.length) return { labels: [], datasets: [] };
 
-  const unit = ordered[0]?.unit || 'kg';
   return {
     labels: ordered.map(h => formatLabelDate(h.harvest_date)),
     datasets: [{
-      label: `Yield (${unit})`,
-      data: ordered.map(h => Number(h?.yield) || 0),
+      label: `Yield (${harvestUnit.value})`,
+      data: ordered.map(h => harvestAmount(h)),
       borderColor: 'rgb(16, 185, 129)', // emerald-500
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
       tension: 0.1,
@@ -839,8 +860,7 @@ const yieldChartData = computed(() => {
 const varietyChartData = computed(() => {
   const varietyTotals = harvests.value.reduce((acc, harvest) => {
     const variety = harvest?.planting?.crop_type || 'Unknown Variety';
-    const yieldValue = Number(harvest?.yield) || 0;
-    acc[variety] = (acc[variety] || 0) + yieldValue;
+    acc[variety] = (acc[variety] || 0) + harvestAmount(harvest);
     return acc;
   }, {});
 
@@ -853,7 +873,7 @@ const varietyChartData = computed(() => {
   return {
     labels,
     datasets: [{
-      label: 'Yield (kg)',
+      label: `Yield (${harvestUnit.value})`,
       data,
       backgroundColor: labels.map((_, index) => getColor(index)),
       borderRadius: 4
@@ -877,7 +897,34 @@ const monthLabels = computed(() => {
 });
 
 const financialChartData = computed(() => {
-  if (!monthLabels.value.length) return { labels: [], datasets: [] };
+  if (!monthLabels.value.length) {
+    const revenue = Number(analyticsData.value?.sales?.total_revenue ?? 0);
+    const expenses = Number(analyticsData.value?.expenses?.total_expenses ?? 0);
+
+    if (revenue <= 0 && expenses <= 0) return { labels: [], datasets: [] };
+
+    return {
+      labels: [selectedPeriodLabel.value],
+      datasets: [
+        {
+          label: 'Revenue',
+          data: [revenue],
+          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: 'Expenses',
+          data: [expenses],
+          borderColor: 'rgb(244, 63, 94)',
+          backgroundColor: 'rgba(244, 63, 94, 0.15)',
+          tension: 0.3,
+          fill: true
+        }
+      ]
+    };
+  }
 
   const labels = monthLabels.value.map(monthLabelFromKey);
   const revenueData = monthLabels.value.map((key) => parseFloat((revenueByMonth.value.get(key) || 0).toFixed(2)));
@@ -907,7 +954,34 @@ const financialChartData = computed(() => {
 });
 
 const expenseChartData = computed(() => {
-  if (!expensesList.value.length) return { labels: [], datasets: [] };
+  if (!expensesList.value.length) {
+    const categoryBreakdown = analyticsData.value?.expenses?.by_category ?? {};
+    const entries = Object.entries(categoryBreakdown)
+      .map(([category, data]) => [category, Number(data?.total ?? 0)])
+      .filter(([, amount]) => amount > 0)
+      .sort((a, b) => b[1] - a[1]);
+
+    if (!entries.length) {
+      const totalExpenses = Number(analyticsData.value?.expenses?.total_expenses ?? 0);
+      if (totalExpenses <= 0) return { labels: [], datasets: [] };
+
+      return {
+        labels: ['Expenses'],
+        datasets: [{
+          data: [totalExpenses],
+          backgroundColor: [getColor(0)]
+        }]
+      };
+    }
+
+    return {
+      labels: entries.map(([category]) => formatDisplayKey(category)),
+      datasets: [{
+        data: entries.map(([, amount]) => Number(amount.toFixed(2))),
+        backgroundColor: entries.map((_, index) => getColor(index))
+      }]
+    };
+  }
 
   const categoryTotals = expensesList.value.reduce((acc, expense) => {
     const category = expense?.category || 'Uncategorized';
@@ -926,40 +1000,38 @@ const expenseChartData = computed(() => {
 });
 
 const weatherCorrelationData = computed(() => {
-  if (!weatherHistoryRecords.value.length) return { labels: [], datasets: [] };
-
-  const dailyRainfall = new Map();
+  const rainfallByMonth = new Map();
   weatherHistoryRecords.value.forEach(record => {
-    const day = formatLabelDate(record.recorded_at);
-    if (!day) return;
-    dailyRainfall.set(day, (dailyRainfall.get(day) || 0) + Number(record.rainfall || 0));
+    const key = monthKey(record?.recorded_at);
+    if (!key) return;
+    rainfallByMonth.set(key, (rainfallByMonth.get(key) || 0) + (Number(record?.rainfall) || 0));
   });
 
-  const dailyYields = new Map();
+  const yieldByMonth = new Map();
   harvests.value.forEach(harvest => {
-    const day = formatLabelDate(harvest.harvest_date);
-    if (!day) return;
-    dailyYields.set(day, (dailyYields.get(day) || 0) + Number(harvest.yield || 0));
+    const key = monthKey(harvest?.harvest_date);
+    if (!key) return;
+    yieldByMonth.set(key, (yieldByMonth.get(key) || 0) + harvestAmount(harvest));
   });
 
-  const allDaysSet = new Set([...dailyRainfall.keys(), ...dailyYields.keys()]);
-  const sortedDays = Array.from(allDaysSet).sort((a, b) => new Date(a) - new Date(b)).slice(-14);
+  const monthKeys = Array.from(new Set([...rainfallByMonth.keys(), ...yieldByMonth.keys()])).sort();
+  if (!monthKeys.length) return { labels: [], datasets: [] };
 
   return {
-    labels: sortedDays,
+    labels: monthKeys.map(monthLabelFromKey),
     datasets: [
       {
         type: 'bar',
         label: 'Rainfall (mm)',
-        data: sortedDays.map(day => dailyRainfall.get(day) || 0),
+        data: monthKeys.map(key => Number((rainfallByMonth.get(key) || 0).toFixed(2))),
         backgroundColor: 'rgba(59, 130, 246, 0.4)', // blue-500
         yAxisID: 'y1',
         borderRadius: 4
       },
       {
         type: 'line',
-        label: 'Harvest Yield (kg)',
-        data: sortedDays.map(day => dailyYields.get(day) || 0),
+        label: `Harvest Yield (${harvestUnit.value})`,
+        data: monthKeys.map(key => Number((yieldByMonth.get(key) || 0).toFixed(2))),
         borderColor: 'rgb(16, 185, 129)', // emerald-500
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         borderWidth: 2,
@@ -1002,7 +1074,7 @@ const weatherChartOptions = {
       type: 'linear', 
       display: true, 
       position: 'left', 
-      title: { display: true, text: 'Yield (kg)' },
+      title: { display: true, text: `Yield (${harvestUnit.value})` },
       grid: { color: 'rgba(0,0,0,0.05)' } 
     },
     y1: { 
@@ -1060,7 +1132,7 @@ const fetchAnalytics = async () => {
       marketplaceStore.fetchFarmerOrders(orderFilters)
     ]);
 
-    const farmId = farmStore.farmProfile?.id || farmStore.farmProfile?.farm?.id;
+    const farmId = farmStore.farmProfile?.farm?.id ?? farmStore.farmProfile?.id;
     if (farmId) {
       // Calculate days diff for weather history
       const diffTime = Math.abs(new Date(endDate.value) - new Date(startDate.value));
